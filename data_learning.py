@@ -7,10 +7,9 @@ import utils_
 
 
 class DataLearning:
-    def __init__(self, dataloader_train, dataloader_test, dataloader_validation, num_epochs):
+    def __init__(self, dataloader_train, dataloader_test, num_epochs):
         self.dataloader_train = dataloader_train
         self.dataloader_test = dataloader_test
-        self.dataloader_validation = dataloader_validation
         self.current_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = model.Net()
         self.criterion = nn.CrossEntropyLoss()
@@ -88,6 +87,8 @@ class DataLearning:
     
     def evaluate_model(self):
         utils_.TrainLossGraph(self.dict)
+        utils_.TestLossGraph(self.dict)
+        utils_.TrainAccGraph(self.dict)
 
 
     def save(self):

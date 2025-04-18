@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 class StatusReport():
     def __init__(self):
@@ -34,8 +35,6 @@ class StatusReport():
         if batch_num % printevery == 0:
             print("\n",end="")
 
-
-
 class FolderCreator():
     def __init__(self):
         self.now = datetime.now()
@@ -55,10 +54,47 @@ class FolderCreator():
 
 
 
-#&& Graph
-def TrainLossGraph(dict):
-    y = dict["train_loss"]
-    x = list(range(dict["train_loss"]))
+# Graph
+def TrainLossGraph(dict_):
+    y = dict_["train_loss"]
+    x = list(range(len(dict_["train_loss"])))
+    plt.title("train_loss")
+    plt.xlabel("Batch")
+    plt.ylabel("Loss")
     plt.plot(x,y)
+    plt.savefig("train_loss.png", format="png")
+    plt.close()
     plt.show()
-    plt.savefig("train_loss")
+
+def TestLossGraph(dict_):
+    y = dict_["test_loss"]
+    x = list(range(len(dict_["test_loss"])))
+    plt.title("test_loss")
+    plt.xlabel("Batch")
+    plt.ylabel("Loss")
+    plt.plot(x,y)
+    plt.savefig("test_loss.png", format="png")
+    plt.close()
+    plt.show()
+
+def TrainAccGraph(dict_):
+    y = dict_["train_acc_epoch"]
+    x = list(range(len(dict_["train_acc_epoch"])))
+    plt.title("train_acc")
+    plt.xlabel("Batch")
+    plt.ylabel("Accuracy(%)")
+    plt.plot(x,y)
+    plt.savefig("train_acc.png", format="png")
+    plt.close()
+    plt.show()
+
+def TrainAccGraph(dict_):
+    y = dict_["test_acc_epoch"]
+    x = list(range(len(dict_["test_acc_epoch"])))
+    plt.title("test_acc")
+    plt.xlabel("Batch")
+    plt.ylabel("Accuracy(%)")
+    plt.plot(x,y)
+    plt.savefig("test_acc.png", format="png")
+    plt.close()
+    plt.show()
