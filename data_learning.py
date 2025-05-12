@@ -86,9 +86,12 @@ class DataLearning:
             
     
     def evaluate_model(self):
-        utils_.TrainLossGraph(self.dict)
-        utils_.TestLossGraph(self.dict)
-        utils_.TrainAccGraph(self.dict)
+        figlist = [utils_.graph_train_acc(self.dict),
+                    utils_.graph_train_loss(self.dict),
+                    utils_.graph_test_acc(self.dict),
+                    utils_.graph_test_loss(self.dict),
+        ]
+        
 
 
     def save(self):

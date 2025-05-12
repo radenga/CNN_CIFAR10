@@ -52,12 +52,11 @@ class FolderCreator():
             if not os.path.exists(self.wd):
                 os.makedirs(self.wd)
 
-
-
 # Graph
-def TrainLossGraph(dict_):
+def graph_train_loss(dict_):
     y = dict_["train_loss"]
     x = list(range(len(dict_["train_loss"])))
+    fig = plt.figure()
     plt.title("train_loss")
     plt.xlabel("Batch")
     plt.ylabel("Loss")
@@ -65,10 +64,12 @@ def TrainLossGraph(dict_):
     plt.savefig("train_loss.png", format="png")
     plt.close()
     plt.show()
+    return fig
 
-def TestLossGraph(dict_):
+def graph_test_loss(dict_):
     y = dict_["test_loss"]
     x = list(range(len(dict_["test_loss"])))
+    fig = plt.figure()
     plt.title("test_loss")
     plt.xlabel("Batch")
     plt.ylabel("Loss")
@@ -76,10 +77,12 @@ def TestLossGraph(dict_):
     plt.savefig("test_loss.png", format="png")
     plt.close()
     plt.show()
+    return fig
 
-def TrainAccGraph(dict_):
+def graph_train_acc(dict_):
     y = dict_["train_acc_epoch"]
     x = list(range(len(dict_["train_acc_epoch"])))
+    fig = plt.figure()
     plt.title("train_acc")
     plt.xlabel("Batch")
     plt.ylabel("Accuracy(%)")
@@ -87,10 +90,12 @@ def TrainAccGraph(dict_):
     plt.savefig("train_acc.png", format="png")
     plt.close()
     plt.show()
+    return fig
 
-def TrainAccGraph(dict_):
+def graph_test_graph(dict_):
     y = dict_["test_acc_epoch"]
     x = list(range(len(dict_["test_acc_epoch"])))
+    fig = plt.figure()
     plt.title("test_acc")
     plt.xlabel("Batch")
     plt.ylabel("Accuracy(%)")
@@ -98,3 +103,4 @@ def TrainAccGraph(dict_):
     plt.savefig("test_acc.png", format="png")
     plt.close()
     plt.show()
+    return fig
