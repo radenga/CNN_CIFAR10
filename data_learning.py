@@ -1,15 +1,18 @@
 import torch
 import torch.optim as optim
 import torch.nn as nn
+import matplotlib.pyplot as plt
+import os
 
 import model 
 import utils_
 
 
 class DataLearning:
-    def __init__(self, dataloader_train, dataloader_test, num_epochs):
+    def __init__(self, dataloader_train, dataloader_test, folder, num_epochs):
         self.dataloader_train = dataloader_train
         self.dataloader_test = dataloader_test
+        self.folder = folder
         self.current_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = model.Net()
         self.criterion = nn.CrossEntropyLoss()
@@ -20,6 +23,7 @@ class DataLearning:
 
         self.dict = {}
         self.dict["dict_name"] = "DataLearning"
+        self.dict["folder"] = self.folder
         self.dict["current_device"] = self.current_device
         self.dict["model"] = self.model.to(self.current_device)
         self.dict["criterion"] = self.criterion
@@ -34,6 +38,7 @@ class DataLearning:
         self.dict["test_loss"] = []
         self.dict["test_acc_batch"] = []
         self.dict["test_acc_epoch"] = []
+        self.write_log(self.dict)
 
     def get_dataloaders(self):
         return self.dataloader_train, self.dataloader_test, self.dataloader_validation 
@@ -62,8 +67,6 @@ class DataLearning:
             self.dict["train_batch_num"].append(batch_number)
         self.dict["train_acc_epoch"].append(acc)
 
-
-
     def test_model(self, epoch):
         self.status_report.headline("Test")
         total = 0
@@ -80,45 +83,60 @@ class DataLearning:
                 acc = 100 * correct // total
                 self.status_report.status(epoch=epoch,batch_num=batch_number,acc=acc,loss=loss.item(),printevery=100)
                 self.dict["test_loss"].append(loss.item())
-            self.dict["test_acc_batch"].append(acc)
+                self.dict["test_acc_batch"].append(acc)
             self.dict["test_batch_num"].append(batch_number)
         self.dict["test_acc_epoch"].append(acc)
             
-    
     def evaluate_model(self):
-        figlist = [utils_.graph_train_acc(self.dict),
-                    utils_.graph_train_loss(self.dict),
-                    utils_.graph_test_acc(self.dict),
-                    utils_.graph_test_loss(self.dict),
-        ]
-        
+        figlist = [utils_.graph_train_acc(self.dict, create_every=2),
+                    utils_.graph_train_loss(self.dict, create_every=2),
+                    utils_.graph_test_acc(self.dict, create_every=2),
+                    utils_.graph_test_loss(self.dict, create_every=2),
+                    ]
+        for fig_, directory in figlist:
+            if fig_ != 0:
+                fig_.savefig(directory, format="png")
 
+        self.dict["latest_train_loss"] = self.dict["train_loss"][-1]
+        self.dict["latest_test_loss"] = self.dict["test_loss"][-1]
+        self.dict["latest_train_acc"] = self.dict["train_acc_epoch"][-1]
+        self.dict["latest_test_acc"] = self.dict["test_acc_epoch"][-1]
 
     def save(self):
-        torch.save(self.model, "model.pt")
-        torch.save(self.dict, "dict.pt")
+        current_epoch = self.dict["current_epoch"]
+        if current_epoch == 1:
+            self.highest_acc = self.dict["train_acc_batch"][-1]
+        if self.highest_acc < self.dict["train_acc_batch"][-1]:
+            self.highest_acc = self.dict["train_acc_batch"][-1]
+            model_dict = {"acc" : self.highest_acc,
+                          "model" : self.model,
+                          "epoch" : current_epoch,
+                          "loss" : self.dict["train_loss"][-1]
+                          }
+            torch.save(model_dict, os.path.join(self.folder,f"model_highest_dict.pt"))
+        torch.save(self.model, os.path.join(self.folder,"model.pt"))
+        torch.save(self.dict, os.path.join(self.folder,"dict.pt"))
         
     def routine(self):
         epoch_list = []
-        for epoch in range(self.num_epochs):
+        for epoch in range(1,self.num_epochs+1):
+            self.dict["current_epoch"] = epoch
+            epoch_list.append(epoch)
             self.train_model(epoch)
-            self.save()
             self.test_model(epoch)
             self.evaluate_model()
+            self.write_log(self.dict)
+            self.save()
+        self.write_log(self.dict)
+        self.dict["epoch"] = epoch_list
             
-            epoch_list.append(epoch)
-            self.dict["current_epoch"] = epoch
-
     def write_log(self, dict_):
-        file = open("log.txt", "w")  # open file in write mode
+        file = open(os.path.join(self.folder,"log.txt"), "w")  # open file in write mode
         file.write("{\n")   
         for key in dict_.keys():        
             file.write(f"'{key}': '{dict_[key]}',\n")  # add comma at end of line
         file.write("}")
         file.close()    
-
-
-
 
 if __name__ == "__main__":
     import torch
